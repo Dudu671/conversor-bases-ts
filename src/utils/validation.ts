@@ -1,19 +1,10 @@
 import { BASE32_DIGITS } from '../converter'
-import { showAlert, toggleInputStyle } from './dom'
 
-export function isValidInput(inputNode: HTMLTextAreaElement, value: string, base: number, warning: boolean = false): boolean {
+export function isValidInput(value: string, base: number): boolean {
   const validDigits = BASE32_DIGITS.slice(0, base)
+  return [...value].every(char => validDigits.includes(char.toUpperCase()))
+}
 
-  for (const char of value) {
-    if (!validDigits.includes(char.toUpperCase())) {
-      toggleInputStyle(inputNode, 'red', true)
-      if (warning) {
-        showAlert('Entrada inválida', `O número inserido contém caracteres que não são válidos para a base ${base}.`, 'error')
-      }
-      return false
-    }
-  }
-
-  toggleInputStyle(inputNode, 'transparent')
-  return true
+export function isValidBase(value: number): boolean {
+  return !isNaN(value) && value >= 2 && value <= 32
 }

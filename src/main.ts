@@ -1,7 +1,7 @@
 import './style.css'
 import { convert } from './converter'
 import { updateBaseGroupState, showAlert, toggleInputStyle } from './utils/dom'
-import { isValidInput } from './utils/validation'
+import { isValidInput, isValidBase } from './utils/validation'
 
 const state = {
   baseFrom: 10,
@@ -33,7 +33,7 @@ baseGroups.forEach(group => {
       if (isBaseInputGroup) state.baseFrom = parsedValue;
       else state.baseTo = parsedValue;
 
-      if (state.inputValue) isValidInput(inputNode, state.inputValue, state.baseFrom)
+      if (state.inputValue) updateInputValidity()
     })
   })
 
@@ -44,8 +44,8 @@ baseGroups.forEach(group => {
 
 // Evento do Input de Valor Principal
 inputNode.addEventListener('change', (e) => {
-  state.inputValue = (e.currentTarget as HTMLInputElement).value
-  isValidInput(inputNode, state.inputValue, state.baseFrom)
+  state.inputValue = (e.currentTarget as HTMLTextAreaElement).value
+  updateInputValidity()
 })
 
 inputNode.addEventListener('input', () => {
@@ -72,7 +72,8 @@ swapButton.addEventListener('click', () => {
   updateBaseGroupState(fromGroup, state.baseFrom)
   updateBaseGroupState(toGroup, state.baseTo)
 
-  if (state.inputValue) isValidInput(inputNode, state.inputValue, state.baseFrom)
+  if (state.inputValue)
+    updateInputValidity()
 })
 
 // Evento de Conversão (Botão)
@@ -83,36 +84,45 @@ convertButton.addEventListener('click', () => {
     return
   }
 
-  if (!isValidInput(inputNode, state.inputValue, state.baseFrom, true))
+  updateInputValidity()
+
+  if (!isValidInput(state.inputValue, state.baseFrom)) {
+    showAlert('Entrada inválida', `O número inserido contém caracteres que não são válidos para a base ${state.baseFrom}.`, 'error')
     return
+  }
 
   const result = convert(state.inputValue, state.baseFrom, state.baseTo)
   const resultDisplay = document.querySelector<HTMLDivElement>('.result-display')!
   resultDisplay.textContent = result ?? '0'
 })
 
-// Funções de Validação e Lógica
+// Orquestração de validações
 function handleInputBase(e: Event, isBaseInputGroup: boolean, buttons: NodeListOf<HTMLButtonElement>): void {
   const element = e.currentTarget as HTMLInputElement
-  const value = parseInt(element.value)
+  const value = parseInt(element.value, 10)
 
   if (!value && value !== 0) return toggleInputStyle(element, 'transparent')
 
-  if (isNaN(value) || value < 2 || value > 32) {
+  if (!isValidBase(value)) {
     toggleInputStyle(element, 'red', true)
-    if (e.type === 'change') {
+    if (e.type === 'change')
       showAlert('Base inválida', 'A base inserida é inválida. Por favor, insira um valor entre 2 e 32.', 'error')
-    }
     return
   }
 
   toggleInputStyle(element, 'transparent')
 
-  if (isBaseInputGroup) state.baseFrom = value;
-  else state.baseTo = value;
+  if (isBaseInputGroup) state.baseFrom = value
+  else state.baseTo = value
 
   buttons.forEach(btn => btn.classList.remove('active'))
   element.classList.add('active')
 
-  if (state.inputValue) isValidInput(inputNode, state.inputValue, state.baseFrom)
+  updateInputValidity()
+}
+
+function updateInputValidity() {
+  if (!state.inputValue) return
+  const valid = isValidInput(state.inputValue, state.baseFrom)
+  toggleInputStyle(inputNode, valid ? 'transparent' : 'red', !valid)
 }
