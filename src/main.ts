@@ -1,13 +1,15 @@
 import './style.css'
 import { convert } from './converter'
-import Swal from 'sweetalert2'
+import { updateBaseGroupState, showAlert, toggleInputStyle } from './utils/dom'
+import { isValidInput } from './utils/validation'
 
-const base32Digits = '0123456789ABCDEFGHIJKLMNOPQRSTUV'
-let baseFrom = 10
-let baseTo = 2
-let inputValue = ''
+const state = {
+  baseFrom: 10,
+  baseTo: 2,
+  inputValue: ''
+}
 
-const inputNode = document.querySelector<HTMLInputElement>('#inputValue')!
+const inputNode = document.querySelector<HTMLTextAreaElement>('#inputValue')!
 const baseGroups = document.querySelectorAll<HTMLDivElement>('.base-group')
 
 // Configuração dos Grupos de Base (From / To)
@@ -28,10 +30,10 @@ baseGroups.forEach(group => {
       const defaultValue = isBaseInputGroup ? '10' : '2'
       const parsedValue = parseInt(element.dataset.value ?? defaultValue)
 
-      if (isBaseInputGroup) baseFrom = parsedValue;
-      else baseTo = parsedValue;
+      if (isBaseInputGroup) state.baseFrom = parsedValue;
+      else state.baseTo = parsedValue;
 
-      if (inputValue) isValidInput(inputNode, inputValue, baseFrom)
+      if (state.inputValue) isValidInput(inputNode, state.inputValue, state.baseFrom)
     })
   })
 
@@ -42,14 +44,19 @@ baseGroups.forEach(group => {
 
 // Evento do Input de Valor Principal
 inputNode.addEventListener('change', (e) => {
-  inputValue = (e.currentTarget as HTMLInputElement).value
-  isValidInput(inputNode, inputValue, baseFrom)
+  state.inputValue = (e.currentTarget as HTMLInputElement).value
+  isValidInput(inputNode, state.inputValue, state.baseFrom)
+})
+
+inputNode.addEventListener('input', () => {
+  inputNode.style.height = 'auto'
+  inputNode.style.height = inputNode.scrollHeight + 'px'
 })
 
 // Evento de Swap (Botão)
 const swapButton = document.querySelector<HTMLButtonElement>('#swapButton')!
 swapButton.addEventListener('click', () => {
-  [baseFrom, baseTo] = [baseTo, baseFrom]
+  [state.baseFrom, state.baseTo] = [state.baseTo, state.baseFrom]
 
   const fromGroup = document.querySelector<HTMLDivElement>('#baseInputGroup')!
   const toGroup = document.querySelector<HTMLDivElement>('#baseOutputGroup')!
@@ -62,71 +69,34 @@ swapButton.addEventListener('click', () => {
   fromInput.value = toValue
   toInput.value = fromValue
 
-  updateBaseGroupState(fromGroup, baseFrom)
-  updateBaseGroupState(toGroup, baseTo)
+  updateBaseGroupState(fromGroup, state.baseFrom)
+  updateBaseGroupState(toGroup, state.baseTo)
 
-  if (inputValue) isValidInput(inputNode, inputValue, baseFrom)
+  if (state.inputValue) isValidInput(inputNode, state.inputValue, state.baseFrom)
 })
-
-function updateBaseGroupState(group: HTMLDivElement, activeBase: number) {
-  const buttons = group.querySelectorAll<HTMLButtonElement>('button')
-  const inputBase = group.querySelector<HTMLInputElement>('input')!
-
-  let matchedButton = false
-
-  buttons.forEach(btn => {
-    const value = parseInt(btn.dataset.value ?? '0')
-    const isActive = value === activeBase
-    btn.classList.toggle('active', isActive)
-    if (isActive) matchedButton = true
-  })
-
-  if (matchedButton || inputBase.value === '') {
-    inputBase.classList.remove('active')
-  } else {
-    inputBase.classList.add('active')
-  }
-}
 
 // Evento de Conversão (Botão)
 const convertButton = document.querySelector<HTMLButtonElement>('#convertButton')!
 convertButton.addEventListener('click', () => {
-  if (!inputValue) {
+  if (!state.inputValue) {
     showAlert('Entrada vazia', 'Por favor, insira um número para converter.', 'warning')
     return
   }
 
-  if (!isValidInput(inputNode, inputValue, baseFrom, true))
+  if (!isValidInput(inputNode, state.inputValue, state.baseFrom, true))
     return
 
-  const result = convert(inputValue, baseFrom, baseTo)
+  const result = convert(state.inputValue, state.baseFrom, state.baseTo)
   const resultDisplay = document.querySelector<HTMLDivElement>('.result-display')!
   resultDisplay.textContent = result ?? '0'
 })
 
 // Funções de Validação e Lógica
-function isValidInput(inputNode: HTMLInputElement, value: string, base: number, warning: boolean = false): boolean {
-  const validDigits = base32Digits.slice(0, base)
-
-  for (const char of value) {
-    if (!validDigits.includes(char.toUpperCase())) {
-      toggleInputStyle(inputNode, 'red', true)
-      if (warning) {
-        showAlert('Entrada inválida', `O número inserido contém caracteres que não são válidos para a base ${base}.`, 'error')
-      }
-      return false
-    }
-  }
-
-  toggleInputStyle(inputNode, 'transparent')
-  return true
-}
-
 function handleInputBase(e: Event, isBaseInputGroup: boolean, buttons: NodeListOf<HTMLButtonElement>): void {
   const element = e.currentTarget as HTMLInputElement
   const value = parseInt(element.value)
 
-  if (!value) return toggleInputStyle(element, 'transparent')
+  if (!value && value !== 0) return toggleInputStyle(element, 'transparent')
 
   if (isNaN(value) || value < 2 || value > 32) {
     toggleInputStyle(element, 'red', true)
@@ -138,27 +108,11 @@ function handleInputBase(e: Event, isBaseInputGroup: boolean, buttons: NodeListO
 
   toggleInputStyle(element, 'transparent')
 
-  if (isBaseInputGroup) baseFrom = value;
-  else baseTo = value;
+  if (isBaseInputGroup) state.baseFrom = value;
+  else state.baseTo = value;
 
   buttons.forEach(btn => btn.classList.remove('active'))
   element.classList.add('active')
 
-  if (inputValue) isValidInput(inputNode, inputValue, baseFrom)
-}
-
-// Helpers de Interface
-function toggleInputStyle(input: HTMLInputElement, color: 'red' | 'transparent', shouldTilt = false) {
-  input.style.borderColor = color
-  if (shouldTilt) {
-    input.animate([
-      { transform: 'rotate(2deg)' }, { transform: 'rotate(-2deg)' },
-      { transform: 'rotate(2deg)' }, { transform: 'rotate(-2deg)' },
-      { transform: 'rotate(0deg)' }
-    ], { duration: 300, iterations: 1 })
-  }
-}
-
-function showAlert(title: string, text: string, icon: 'success' | 'error' | 'warning' | 'info' | 'question') {
-  Swal.fire({ title, text, icon, confirmButtonText: 'OK' })
+  if (state.inputValue) isValidInput(inputNode, state.inputValue, state.baseFrom)
 }

@@ -3,14 +3,14 @@
 
 /* Variables */
 :root {
-  --bg: #061537;
-  --bg-gradient-start: #0d1f4d;
+  --bg: #061129;
+  --bg-gradient-start: #00237d;
   --bg-gradient-end: #030b21;
   --border-gradient-start: #3f52e0de;
-  --border-gradient-end: #f57f9477;
+  --border-gradient-end: #f57ff577;
   --border: #f5f5f5;
   --main-color: #0f1e43;
-  --secondary-color: #87dcff;
+  --secondary-color: #86e1ff;
 }
 
 /* ----------------------------------------------- */
@@ -120,7 +120,8 @@ hr {
   }
 }
 
-input {
+input,
+textarea {
   width: 100px;
   padding: 10px;
   border-radius: 5px;
@@ -188,7 +189,7 @@ body {
 
       .base-group {
         width: 100%;
-        
+
         .wrapper {
           display: flex;
           gap: 10px;
@@ -222,11 +223,20 @@ body {
       }
 
       .entry {
+        display: flex;
         width: 100%;
         position: relative;
 
-        input {
+        textarea {
           width: 100%;
+          resize: none;
+          overflow-y: scroll;
+          scrollbar-width: none;
+          max-height: 100px;
+
+          &:not(:placeholder-shown) {
+            padding-right: 80px;
+          }
         }
 
         button {
