@@ -1,20 +1,22 @@
 {
-  "name": "base-converter",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
-    "preview": "vite preview"
-  },
-  "devDependencies": {
-    "typescript": "~6.0.2",
-    "vite": "^8.0.12"
-  },
-  "dependencies": {
-    "@fontsource-variable/roboto": "^5.2.10",
-    "@fortawesome/fontawesome-free": "^7.2.0",
-    "sweetalert2": "^11.26.24"
-  }
+	"name": "base-converter",
+	"private": true,
+	"version": "0.0.0",
+	"type": "module",
+	"scripts": {
+		"dev": "vite",
+		"build": "tsc && vite build",
+		"preview": "vite preview",
+		"format": "prettier --write ."
+	},
+	"devDependencies": {
+		"prettier": "^3.8.3",
+		"typescript": "~6.0.2",
+		"vite": "^8.0.12"
+	},
+	"dependencies": {
+		"@fontsource-variable/roboto": "^5.2.10",
+		"@fortawesome/fontawesome-free": "^7.2.0",
+		"sweetalert2": "^11.26.24"
+	}
 }

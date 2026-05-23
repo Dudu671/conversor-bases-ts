@@ -1,61 +1,59 @@
 <!doctype html>
 <html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Conversor de Bases - AOC</title>
+	</head>
 
-<head>
-  <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Conversor de Bases - AOC</title>
-</head>
+	<body>
+		<div class="container">
+			<div class="converter">
+				<h1>Conversor de Bases - AOC</h1>
+				<small>Converte números entre base 2 e base 32</small>
 
-<body>
-  <div class="container">
-    <div class="converter">
-      <h1>Conversor de Bases - AOC</h1>
-      <small>Converte números entre base 2 e base 32</small>
+				<hr />
 
-      <hr>
+				<div class="base-group" id="baseInputGroup">
+					<div class="info-label"><i class="fa-solid fa-info-circle"></i> Base de entrada:</div>
 
-      <div class="base-group" id="baseInputGroup">
-        <div class="info-label"><i class="fa-solid fa-info-circle"></i> Base de entrada:</div>
+					<div class="wrapper">
+						<button data-value="2">Binário</button>
+						<button data-value="8">Octal</button>
+						<button class="active" data-value="10">Decimal</button>
+						<button data-value="16">Hexadecimal</button>
+						<input type="number" id="inputBaseFrom" placeholder="Outra" />
+					</div>
+				</div>
 
-        <div class="wrapper">
-          <button data-value="2">Binário</button>
-          <button data-value="8">Octal</button>
-          <button class="active" data-value="10">Decimal</button>
-          <button data-value="16">Hexadecimal</button>
-          <input type="number" id="inputBaseFrom" placeholder="Outra" />
-        </div>
-      </div>
+				<div class="centerline">
+					<hr />
+					<button id="swapButton"><i class="fa-solid fa-arrows-v"></i></button>
+				</div>
 
-      <div class="centerline">
-        <hr>
-        <button id="swapButton"><i class="fa-solid fa-arrows-v"></i></button>
-      </div>
+				<div class="entry">
+					<textarea id="inputValue" rows="1" spellcheck="false" placeholder="Digite um valor para converter"></textarea>
+					<button id="convertButton"><i class="fa-solid fa-angle-double-right"></i></button>
+				</div>
 
-      <div class="entry">
-        <textarea id="inputValue" rows="1" spellcheck="false" placeholder="Digite um valor para converter"></textarea>
-        <button id="convertButton"><i class="fa-solid fa-angle-double-right"></i></button>
-      </div>
+				<hr />
 
-      <hr>
+				<div class="base-group" id="baseOutputGroup">
+					<div class="info-label"><i class="fa-solid fa-info-circle"></i> Base de saída:</div>
 
-      <div class="base-group" id="baseOutputGroup">
-        <div class="info-label"><i class="fa-solid fa-info-circle"></i> Base de saída:</div>
+					<div class="wrapper">
+						<button class="active" data-value="2">Binário</button>
+						<button data-value="8">Octal</button>
+						<button data-value="10">Decimal</button>
+						<button data-value="16">Hexadecimal</button>
+						<input type="number" id="inputBaseTo" placeholder="Outra" />
+					</div>
+				</div>
 
-        <div class="wrapper">
-          <button class="active" data-value="2">Binário</button>
-          <button data-value="8">Octal</button>
-          <button data-value="10">Decimal</button>
-          <button data-value="16">Hexadecimal</button>
-          <input type="number" id="inputBaseTo" placeholder="Outra" />
-        </div>
-      </div>
-
-      <div class="result-display">0</div>
-    </div>
-  </div>
-  <script type="module" src="/src/main.ts"></script>
-</body>
-
+				<div class="result-display">0</div>
+			</div>
+		</div>
+		<script type="module" src="/src/main.ts"></script>
+	</body>
 </html>
